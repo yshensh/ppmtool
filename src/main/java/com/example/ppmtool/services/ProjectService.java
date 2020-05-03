@@ -30,9 +30,9 @@ public class ProjectService {
                 backlog.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
             }
 
-            if(project.getId() != null) {
+            // update backlog for an existing project
+            if(project.getId()!=null) {
                 project.setBacklog(backlogRepository.findByProjectIdentifier(project.getProjectIdentifier().toUpperCase()));
-
             }
 
             return projectRepository.save(project);

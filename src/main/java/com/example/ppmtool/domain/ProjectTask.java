@@ -1,5 +1,7 @@
 package com.example.ppmtool.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
@@ -18,7 +20,12 @@ public class ProjectTask {
     private String status;
     private Integer priority;
     private Date dueDate;
+
     // many-to-one with Backlog
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @JoinColumn(name="backlog_id", updatable = false, nullable = false)
+    @JsonIgnore
+    private Backlog backlog;
 
     @Column(updatable = false)
     private String projectIdentifier;
@@ -57,8 +64,8 @@ public class ProjectTask {
         return acceptanceCriteria;
     }
 
-    public void setAcceptanceCriteria(String accepetanceCriteria) {
-        this.acceptanceCriteria = accepetanceCriteria;
+    public void setAcceptanceCriteria(String acceptanceCriteria) {
+        this.acceptanceCriteria = acceptanceCriteria;
     }
 
     public String getStatus() {
@@ -109,6 +116,14 @@ public class ProjectTask {
         this.update_At = update_At;
     }
 
+    public Backlog getBacklog() {
+        return backlog;
+    }
+
+    public void setBacklog(Backlog backlog) {
+        this.backlog = backlog;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.create_At = new Date();
@@ -125,7 +140,7 @@ public class ProjectTask {
                 "id=" + id +
                 ", projectSequence='" + projectSequence + '\'' +
                 ", summary='" + summary + '\'' +
-                ", accepetanceCriteria='" + acceptanceCriteria + '\'' +
+                ", acceptanceCriteria='" + acceptanceCriteria + '\'' +
                 ", status='" + status + '\'' +
                 ", priority=" + priority +
                 ", dueDate=" + dueDate +
