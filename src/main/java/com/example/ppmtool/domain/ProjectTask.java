@@ -22,7 +22,7 @@ public class ProjectTask {
     private Date dueDate;
 
     // many-to-one with Backlog
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="backlog_id", updatable = false, nullable = false)
     @JsonIgnore
     private Backlog backlog;
