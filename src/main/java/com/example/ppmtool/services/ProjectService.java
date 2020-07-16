@@ -2,11 +2,15 @@ package com.example.ppmtool.services;
 
 import com.example.ppmtool.domain.Backlog;
 import com.example.ppmtool.domain.Project;
+import com.example.ppmtool.domain.User;
 import com.example.ppmtool.exceptions.ProjectIdException;
 import com.example.ppmtool.repositories.BacklogRepository;
 import com.example.ppmtool.repositories.ProjectRepository;
+import com.example.ppmtool.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.security.Principal;
 
 @Service
 public class ProjectService {
@@ -17,9 +21,16 @@ public class ProjectService {
     @Autowired
     private BacklogRepository backlogRepository;
 
-    public Project saveOrUpdate(Project project) {
+    @Autowired
+    private UserRepository userRepository;
+
+    public Project saveOrUpdate(Project project, String username) {
 
         try{
+            User user = userRepository.findByUsername(username);
+
+            project.setUser(user);
+            project.setProjectLeader(user.getUsername());
             project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
 
             // create backlog only when a new project is created
