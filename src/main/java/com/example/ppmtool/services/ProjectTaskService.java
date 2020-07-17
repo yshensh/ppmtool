@@ -24,44 +24,44 @@ public class ProjectTaskService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask) {
-        try {
-            // ProjectTask to be added to a specific project, project != null, backlog exists
-            Backlog backlog = backlogRepository.findByProjectIdentifier(projectIdentifier);
-            // set the Backlog to ProjectTask
-            projectTask.setBacklog(backlog);
-            // keep the project sequence to be continuously growing
-            Integer BacklogSequence = backlog.getPTSequence();
-            // update the Backlog Sequence
-            BacklogSequence++;
-            backlog.setPTSequence(BacklogSequence);
-            // add Backlog Sequence to Project Task
-            projectTask.setProjectSequence(projectIdentifier + "-" + BacklogSequence);
-            projectTask.setProjectIdentifier(projectIdentifier);
+    @Autowired
+    private ProjectService projectService;
 
-            // initial priority when priority null
-            if (projectTask.getPriority()==0 || projectTask.getPriority() == null) {
-                projectTask.setPriority(3);
-            }
+    public ProjectTask addProjectTask(String projectIdentifier, ProjectTask projectTask, String username) {
 
-            // initial status is null
-            if (projectTask.getStatus()=="" || projectTask.getStatus() == null) {
-                projectTask.setStatus("TO_DO");
-            }
+        // ProjectTask to be added to a specific project, project != null, backlog exists
+        Backlog backlog = projectService.findProjectByIdentifier(projectIdentifier, username).getBacklog();
 
-            return projectTaskRepository.save(projectTask);
-        } catch (Exception e) {
-            throw new ProjectNotFoundException("Project not found");
+        // set the Backlog to ProjectTask
+        projectTask.setBacklog(backlog);
+
+        // keep the project sequence to be continuously growing
+        Integer BacklogSequence = backlog.getPTSequence();
+
+        // update the Backlog Sequence
+        BacklogSequence++;
+        backlog.setPTSequence(BacklogSequence);
+
+        // add Backlog Sequence to Project Task
+        projectTask.setProjectSequence(projectIdentifier + "-" + BacklogSequence);
+        projectTask.setProjectIdentifier(projectIdentifier);
+
+        // initial priority when priority null
+        if(projectTask.getPriority() == null || projectTask.getPriority() == 0) {
+            projectTask.setPriority(3);
         }
+
+        // initial status is null
+        if (projectTask.getStatus() == null || projectTask.getStatus()=="") {
+            projectTask.setStatus("TO_DO");
+        }
+
+        return projectTaskRepository.save(projectTask);
     }
 
-    public Iterable<ProjectTask> findBacklogById(String id) {
+    public Iterable<ProjectTask> findBacklogById(String id, String username) {
 
-        Project project = projectRepository.findByProjectIdentifier(id.toUpperCase());
-
-        if (project==null) {
-            throw new ProjectNotFoundException("Project with ID '" + id + "' does not exit");
-        }
+        projectService.findProjectByIdentifier(id, username);
 
         return projectTaskRepository.findByProjectIdentifierOrderByPriority(id);
     }
